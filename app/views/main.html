@@ -1,0 +1,20 @@
+<div class="row" ng-controller="UploadCtrl">
+    <div class="span7">
+        <h2>Designer</h2>
+
+        <fabric-area id="c" width="500" height="500" images="userImages" style="border:1px solid #ccc"></fabric-area>
+    </div>
+    <div class="span5">
+        <h2>Bilder</h2>
+        <button class="btn btn-mini" ng-click="dummy()">SCOPE.APPLY</button>
+        <ul>
+            <li ng-repeat="image in userImages">
+                <img src="{{image.serverPath}}" width="30px" height="30px"/>
+                <button class="btn btn-mini" ng-click="resetImage(image)">Reset</button>
+                ({{image.posX| number:2}}/{{image.posY| number:2}}) [{{image.angle| number:2}} / {{image.scale| number:2}}]
+            </li>
+        </ul>
+
+        <p><a class="btn" href="#">View details &raquo;</a></p>
+    </div>
+</div>
