@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('designmeApp', ['ngUpload'])
+angular.module('designmeApp', [])
   .config(function ($routeProvider) {
     $routeProvider
       .when('/', {

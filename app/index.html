@@ -31,21 +31,23 @@
 
 <!-- Add your site or application content here -->
 <div class="container" ng-view></div>
-<div class="container" ng-include src="'views/upload.html'"></div>
 
 <script src="components/jquery/jquery.js"></script>
+<script src="components/jquery-ui/ui/jquery.ui.widget.js"></script>
+<script src="components/jquery-ui/ui/jquery.ui.core.js"></script>
 <script src="components/angular/angular.js"></script>
 <script src="components/angular-resource/angular-resource.js"></script>
 <script src="components/angular-cookies/angular-cookies.js"></script>
 <script src="components/angular-sanitize/angular-sanitize.js"></script>
 <script src="components/fabricjs.js"></script>
-<script src="components/ng-upload.js"></script>
+<script src="components/jquery-file-upload/js/jquery.iframe-transport.js"></script>
+<script src="components/jquery-file-upload/js/jquery.fileupload.js"></script>
 
 <!-- build:js scripts/scripts.js -->
 <script src="scripts/app.js"></script>
 <script src="scripts/controllers/main.js"></script>
-<script src="scripts/services/upload.js"></script>
 <script src="scripts/directives/fabricArea.js"></script>
+<script src="scripts/directives/fileupload.js"></script>
 <script src="scripts/controllers/upload.js"></script>
 <!-- endbuild -->
 

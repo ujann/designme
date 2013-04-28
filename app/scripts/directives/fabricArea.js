@@ -10,17 +10,15 @@ angular.module('designmeApp')
                 images: '='
             },
             link: function postLink(scope, element, attrs) {
-                // hash from model-image to object { img:canvasObject and unregisterFn }
-                var directiveImageModel = new ImageModel();
-
-                var canvas = null;
+                var directiveImageModel = new ImageModel(),
+                    canvas = null;
 
                 function ImageModel() {
                     var scopeImages = [];
                     var canvasImages = [];
                     var watchUnregisterFunctions = [];
 
-                    function indexInArray(item, arr) {
+                    var indexInArray = function (item, arr) {
                         for (var ii = 0; ii < arr.length; ii++) {
                             if (arr[ii] === item) {
                                 return ii;
@@ -80,6 +78,12 @@ angular.module('designmeApp')
                     canvasImage.targetFindTolerance = 4;
                     canvasImage.hasControls = true;
                     canvasImage.hasBorders = true;
+                    canvasImage.transparentCorners = false;
+                    canvasImage.borderColor = 'black';
+                    canvasImage.cornerColor = 'black';
+                    canvasImage.cornerSize = 9;
+                    canvasImage.originX = "left";
+                    canvasImage.originY = "top";
 
                     // watch for changes of image properties:
                     var unregisterFunction = scope.$watch(function () {
@@ -104,22 +108,51 @@ angular.module('designmeApp')
                     }, true);
 
                     directiveImageModel.add(scopeImage, canvasImage, unregisterFunction);
-                    canvas.add(canvasImage);
+                    console.log( 'added a new image: ', scopeImage.serverPath);
+                    try{
+                        canvas.add(canvasImage);
+                    }catch(Exception){
+                        console.log('ERROR painting image: ', canvasImage._originalImage.src);
+                    }
                 }
 
-                function registerWatches(scopeImages) {
+                function registerWatch(scopeImages) {
                     // first watch to check if images array has changed:
-                    scope.$watch(function () {
-                        return scopeImages;
-                    }, function () {
-                        console.log("somebody changed the array!");
-                    }, false);
-
-                    // then watch all current images:
-                    angular.forEach(scopeImages, function (scopeImage) {
-                        fabric.Image.fromURL(scopeImage.serverPath, function (canvasImg) {
-                            initImage(canvasImg, scopeImage)
+                    scope.$watch(function(){
+                        return scope.images;
+                    }, function (newScopeImages, oldScopeImages) {
+                        //console.log("somebody changed image data!");
+                        var lostImages = [];
+                        angular.forEach( oldScopeImages, function(oldScopeImage){
+                            // add it:
+                            lostImages.push( oldScopeImage );
+                            for( var ii=0; ii<newScopeImages.length; ii++ ){
+                                if( oldScopeImage===newScopeImages[ii] ){
+                                    // found it!
+                                    lostImages.pop();
+                                    break;
+                                }
+                            }
                         });
+                        angular.forEach( lostImages, function(lostImage){
+                            var canvasImage = directiveImageModel.findCanvasImageForScopeImage(lostImage);
+                            canvas.remove(canvasImage);
+                        } );
+                        angular.forEach( newScopeImages, function(scopeImage){
+                            var canvasImage = directiveImageModel.findCanvasImageForScopeImage(scopeImage);
+                            if( !canvasImage ){
+                                addScopeImage(scopeImage);
+                            }else{
+                                // bring to front to rearrange order
+                                canvasImage.bringToFront();
+                            }
+                        });
+                    }, true);
+                }
+
+                function addScopeImage(scopeImage) {
+                    fabric.Image.fromURL(scopeImage.serverPath, function (canvasImg) {
+                        initImage(canvasImg, scopeImage)
                     });
                 }
 
@@ -127,9 +160,12 @@ angular.module('designmeApp')
                 element.height = 500;
                 canvas = new fabric.Canvas(element.attr('id'), {
                     hoverCursor: 'pointer',
-                    selection: false,
-                    overlayImage: 'images/designs/menschaerger_pers_4personen_trans4.png'
+                    selection: false
                 });
+                canvas.setOverlayImage('images/designs/menschaerger_pers_4personen_trans4.png', function(a,b,c){
+                    canvas.renderAll();
+                });
+
                 canvas.on({
                     'object:moving': function (e) {
                         e.target.opacity = 0.5;
@@ -140,15 +176,15 @@ angular.module('designmeApp')
                         var affectedScopeImage = directiveImageModel.findScopeImageForCanvasImage(e.target);
                         // communicate the canvas changes back to the scope:
                         scope.$apply(function (x) {
-                            affectedScopeImage.posX = e.target.getCenterPoint().x;
-                            affectedScopeImage.posY = e.target.getCenterPoint().y;
+                            affectedScopeImage.posX = e.target.getLeft();
+                            affectedScopeImage.posY = e.target.getTop();
                             affectedScopeImage.angle = e.target.getAngle();
                             affectedScopeImage.scale = e.target.getScaleX();
                         });
                     }
                 });
 
-                registerWatches(scope.images);
+                registerWatch(scope.images);
             }
         }
     });

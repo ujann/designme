@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="components/angular/angular.js"></script>
+    <style type="text/css">
+        .magic-emphasize{ font-weight: bold}
+        .magic-highlight{ color: #ff0000; font-weight: bold}
+        .magic-yellow{ color: #ffff09; font-weight: bold}
+        .magic-blue{ color: #0000ff; font-weight: bold}
+    </style>
+</head>
+<body>
+    <div ng-app="magic">
+        <div ng-controller="magicController">
+            Mein Name ist <span magic-directive magic-api="myMagicApi" magic-classes=",magic-yellow,magic-blue,magic-emphasize,magic-highlight">{{name}}</span>
+            <button ng-click="restart()">Restart</button>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var magicModule = angular.module('magic',[]);
+
+        magicModule.controller( 'magicController', function($scope){
+            $scope.name = 'Juri Obermeier';
+            $scope.restart = function(){
+                $scope.myMagicApi.reset();
+            }
+        });
+
+        magicModule.service( 'magicService', function($rootScope){
+
+        });
+
+        magicModule.directive('magicDirective', function($timeout){
+            return {
+                restrict: 'A',
+                scope:{
+                    magicApi: '='
+                },
+                link: function postLink(scope, element, attrs) {
+                    var styles = attrs.magicClasses.split(',');
+                    scope.magicApi = { reset: function(){ counter=0; } };
+                    console.log(styles);
+                    var counter = 0;
+                    var eternalFunction = function(){
+                        element.removeClass( styles[counter] );
+                        if( ++counter>=styles.length ){
+                            counter = 0;
+                        }
+                        element.addClass(styles[counter]);
+                        console.log("counter:", counter);
+                        $timeout( eternalFunction, 1000);
+                    }
+                    eternalFunction();
+                }
+            };
+        });
+    </script>
+</body>
+</html>

@@ -9,12 +9,15 @@
         <button class="btn btn-mini" ng-click="dummy()">SCOPE.APPLY</button>
         <ul>
             <li ng-repeat="image in userImages">
-                <img src="{{image.serverPath}}" width="30px" height="30px"/>
-                <button class="btn btn-mini" ng-click="resetImage(image)">Reset</button>
+                <img ng-src="{{image.serverPath}}" width="30px" height="30px"/>
+                <button class="btn btn-mini" ng-click="resetImage(image)">Bring to Front</button>
                 ({{image.posX| number:2}}/{{image.posY| number:2}}) [{{image.angle| number:2}} / {{image.scale| number:2}}]
+                <button class="btn btn-mini" ng-click="removeImage(image)">Remove</button>
             </li>
         </ul>
 
-        <p><a class="btn" href="#">View details &raquo;</a></p>
+        <div id="upload">
+            <file-uploader files="files" on-add="fileAdded(url,name)" onRemove="" id="fileupload"></file-uploader>
+        </div>
     </div>
 </div>
